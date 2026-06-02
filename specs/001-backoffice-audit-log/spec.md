@@ -4,7 +4,7 @@
 **Created**: 2026-05-26  
 **Status**: Draft  
 **Input**: User description: "ฉันต้องการสร้างหน้าเว็บสำหรับการแสดงข้อมูล Audit log สำหรับ Backoffice"
-
+ป
 ## Navigation Structure
 
 ```
@@ -186,9 +186,9 @@ Backoffice
   10. Successfully Login
   11. Failed Login
   12. Audit Log
-- **FR-006**: ฟิลด์ **From Period** และ **To Period** ต้องเป็น text box ที่ผู้ใช้พิมพ์วันที่ได้โดยตรง และมี calendar icon ให้คลิกเพื่อเลือกวันที่จาก date picker
+- **FR-006**: ฟิลด์ **From Period** และ **To Period** ต้องเป็น text box ที่ผู้ใช้พิมพ์วันที่ได้โดยตรง และมี calendar icon ให้คลิกเพื่อเลือกวันที่จาก date picker — รูปแบบวันที่ที่รับและแสดงผลคือ **`YYYY-MM-DD`** (ISO 8601) ระบบเก็บ timestamp แบบเต็มในรูปแบบ `YYYY-MM-DD HH:MM:SS.ms`
 - **FR-007**: ฟิลด์ **User Status** ต้องเป็น radio button 3 ตัวเลือก: "All" (ค่าเริ่มต้น), "Enable", "Disable" — กรองตามสถานะของผู้ใช้ที่กระทำกิจกรรม
-- **FR-008**: ปุ่ม **Submit** (icon) เมื่อคลิกต้องเปิด tab ใหม่ชื่อตาม report ที่เลือก (เช่น "11. Failed Login") และแสดงผลลัพธ์ใน tab นั้น
+- **FR-008**: ปุ่ม **Submit** (icon) เมื่อคลิกต้องเปิด tab ใหม่ชื่อตาม report ที่เลือก (เช่น "11. Failed Login") และแสดงผลลัพธ์ใน tab นั้น — ปุ่ม Submit ต้อง **disable** ขณะที่ระบบกำลังโหลดข้อมูล และ enable กลับเมื่อ request เสร็จสมบูรณ์
 - **FR-009**: หาก tab ของ report นั้นเปิดอยู่แล้ว ระบบต้องอัปเดตผลลัพธ์ใน tab เดิม แทนการเปิด tab ซ้ำ
 - **FR-010**: ปุ่ม **Reset** (icon) เมื่อคลิกต้องล้างค่าใน filter form ทั้งหมดกลับสู่ค่าเริ่มต้น (Report List ว่าง, From/To Period ว่าง, User Status = All) — report tabs ที่เปิดอยู่แล้วยังคงแสดงผลลัพธ์เดิมไว้ ไม่ถูกปิดหรือ refresh
 - **FR-011**: ระบบต้องแสดง validation หาก From Period มากกว่า To Period และไม่ดำเนินการ
@@ -210,7 +210,7 @@ Backoffice
 
 **Report 1–10 — Column Specification**
 
-- **FR-017-note**: Reports 1–10 แต่ละตัวมี column specification เฉพาะของตัวเอง (ไม่ใช่ common schema) — จะถูก specify แยกทีละ report เหมือนกับ report 11 และ 12 ด้านล่าง
+- **FR-017-note**: Reports 1–10 แต่ละตัวมี column specification เฉพาะของตัวเอง (ไม่ใช่ common schema) — column definitions จะถูก specify ใน spec.md นี้ (เหมือน report 11–12) แต่ implementation อยู่ใน **phase แยก** (ไม่ใช่ phase เดียวกับ report 11–12)
 
 **Report 11. Failed Login — Column Specification**
 
@@ -231,7 +231,7 @@ Backoffice
 
 - **FR-017a**: คอลัมน์ **ACTION** ของ report "11. Failed Login" ต้องแสดงค่า **`LOGIN`** เสมอสำหรับทุกแถว — report นี้คือ LOGIN event ที่ไม่สำเร็จ ไม่ใช่ event ประเภทอื่น
 
-- **FR-017b**: คอลัมน์ **ACTION_DESC** ต้องดึงค่า `NAME_EN` จาก **catalog table** ตาม CATALOG_ID โดยมีรายการ catalog ที่ใช้ดังนี้:
+- **FR-017b**: คอลัมน์ **ACTION_DESC** ต้องดึงค่า `NAME_EN` จาก **catalog table** ตาม CATALOG_ID และต้องไม่เป็น null เสมอ — หาก CATALOG_ID ไม่พบในตาราง catalog ให้แสดง CATALOG_ID ดิบแทน (เช่น `"9010099"`) โดยมีรายการ catalog ที่ใช้ดังนี้:
 
   | CATALOG_ID | NAME_EN (ACTION_DESC ที่แสดง) |
   |------------|-------------------------------|
@@ -277,7 +277,7 @@ Backoffice
 
 - **FR-021**: ระบบต้องแสดง filter form ใน sub-tab "Export All" ประกอบด้วย: From Period (text box + calendar icon), To Period (text box + calendar icon), User Status (radio: All/Enable/Disable), Download button, Reset button
 - **FR-022**: ปุ่ม **Download** เมื่อคลิกต้อง export ข้อมูลของ **report 1–12 ทุกตัว** ตามเงื่อนไขที่กำหนด แล้วแพ็กเป็นไฟล์ **ZIP** ที่ประกอบด้วย CSV แยกของแต่ละ report
-- **FR-023**: ระบบต้องแจ้งสถานะการ export ให้ผู้ใช้ทราบ (กำลังดำเนินการ / สำเร็จ / ล้มเหลว)
+- **FR-023**: ระบบต้องแจ้งสถานะการ export ให้ผู้ใช้ทราบ (กำลังดำเนินการ / สำเร็จ / ล้มเหลว) — หาก export ล้มเหลวหรือ timeout ระบบต้องแสดง error message ที่ชัดเจนและให้ผู้ใช้ retry ได้ (synchronous fail-fast — ไม่ใช้ background job)
 - **FR-023a**: ปุ่ม **Reset** ใน Export All ต้องล้างค่า From/To Period กลับเป็นว่าง และ User Status กลับเป็น "All"
 - **FR-023b**: filter ใน Export All (From/To Period, User Status) ต้องถูก apply กับทุก report ใน ZIP file เหมือนกัน
 - **FR-023c**: ขีดจำกัดข้อมูลสำหรับ Export All:
@@ -299,6 +299,14 @@ Backoffice
 - **Filter Criteria**: เงื่อนไขการค้นหาใน View Log Report ประกอบด้วย: Report List, From Period, To Period, User Status
 
 ## Clarifications
+
+### Session 2026-05-29
+
+- Q: รูปแบบวันที่สำหรับ From Period และ To Period คืออะไร? → A: `YYYY-MM-DD` (ISO 8601) สำหรับ input — ระบบเก็บ timestamp แบบเต็มในรูปแบบ `YYYY-MM-DD HH:MM:SS.ms`
+- Q: หาก CATALOG_ID ใน log ไม่ตรงกับรายการใดใน catalog table (9010001–9010010) ระบบควรแสดงอะไรใน ACTION_DESC? → A: ACTION_DESC ต้องไม่เป็น null เสมอ — หาก CATALOG_ID ไม่พบใน catalog ให้แสดง CATALOG_ID ดิบแทน
+- Q: หากผู้ใช้กด Submit ซ้ำขณะ report tab กำลังโหลดอยู่ ระบบควรทำอะไร? → A: Disable ปุ่ม Submit ขณะโหลด — ผู้ใช้กดซ้ำไม่ได้จนกว่า request จะเสร็จสมบูรณ์
+- Q: หาก Export All มีข้อมูลมากเกินไปหรือ timeout ระบบควรทำอะไร? → A: แสดง error message และให้ผู้ใช้ retry (synchronous, fail-fast — ไม่ใช้ background job)
+- Q: Reports 1–10 column specifications อยู่ใน scope ของ branch นี้หรือไม่? → A: Specify column definitions ใน branch นี้ก่อน แต่ implement แยก phase (column specs เพิ่มใน spec.md นี้, implementation แยก phase)
 
 ### Session 2026-05-26
 
