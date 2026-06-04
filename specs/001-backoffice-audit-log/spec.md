@@ -32,9 +32,9 @@ Backoffice
             │   ├── [Report Header]  Report: 11. Failed Login | Date: {from} to {to}
             │   ├── [Export Icon]    ← export เป็น CSV
             │   └── [Result Table]
-            │       └── Login Datetime | ACTION | ACTION_DESC | User Name |
-            │           Group | Administrator | Firstname | Lastname |
-            │           Client IP Address | Client Name
+            │       └── LOGIN DATETIME | ACTION | ACTION_DESC | USER NAME |
+            │           GROUP | ADMINISTRATOR | FIRSTNAME | LASTNAME |
+            │           CLIENT IP ADDRESS | CLIENT NAME
             └── "12. Audit Log" tab
                 ├── [Report Header]  Report: 12. Audit Log | Date: {from} to {to}
                 ├── [Export Icon]    ← export เป็น CSV
@@ -48,7 +48,7 @@ Backoffice
 | กลุ่ม | Reports | Data Availability | View Log Report (Submit) | Export All (Download) |
 |-------|---------|------------------|--------------------------|-----------------------|
 | กลุ่ม A | 1–10 | ไม่จำกัด | ค้นหาได้ทุกช่วง | export ได้ทุกช่วง |
-| กลุ่ม B | 11–12 | สูงสุด **90 วัน** | **บล็อก** ถ้าเกิน 90 วัน | export เฉพาะข้อมูลที่มี (ไม่บล็อก) |
+| กลุ่ม B | 11–12 | สูงสุด **90 วัน** | **clamp อัตโนมัติ** — ระบบปรับ From Period เป็น current date − 90 วันโดยอัตโนมัติ (ไม่บล็อก) | export เฉพาะข้อมูลที่มี (ไม่บล็อก) |
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -102,7 +102,7 @@ Backoffice
 1. **Given** ผู้ใช้เลือก report ใด ๆ กำหนดเงื่อนไข แล้วกด Submit, **When** ระบบประมวลผล, **Then** ระบบเปิด tab ใหม่ชื่อตาม report ที่เลือก และแสดงผลลัพธ์ใน tab นั้น
 2. **Given** ผู้ใช้เลือก Report 1–10 และกำหนดช่วงวันที่ใดก็ได้, **When** กด Submit, **Then** ระบบเปิด tab ผลลัพธ์ได้ทันทีโดยไม่มีข้อจำกัดวันที่
 3. **Given** ผู้ใช้เลือก "11. Failed Login" หรือ "12. Audit Log" และกำหนดช่วงวันที่ภายใน 90 วัน, **When** กด Submit, **Then** ระบบเปิด tab ผลลัพธ์และแสดงข้อมูลในช่วงนั้น
-4. **Given** ผู้ใช้เลือก "11. Failed Login" หรือ "12. Audit Log" และกำหนดช่วงวันที่เกิน 90 วัน, **When** กด Submit, **Then** ระบบแจ้งเตือนว่าข้อมูลย้อนหลังได้สูงสุด 90 วัน และไม่เปิด tab ใหม่
+4. **Given** ผู้ใช้เลือก "11. Failed Login" หรือ "12. Audit Log", **When** เลือก report จาก dropdown, **Then** ระบบ auto-fill From Period = current date − 90 วัน, To Period = current date — ผู้ใช้สามารถปรับเปลี่ยนวันที่ได้ และเมื่อ Submit ระบบจะ clamp fromPeriod เป็น max(fromPeriod, current date − 90) โดยอัตโนมัติ ไม่บล็อก ไม่ error
 5. **Given** มี tab ของ report นั้นเปิดอยู่แล้ว, **When** กด Submit ด้วยเงื่อนไขใหม่, **Then** ระบบอัปเดตผลลัพธ์ใน tab เดิม ไม่เปิด tab ซ้ำ
 6. **Given** tab "11. Failed Login" เปิดขึ้น, **When** ผู้ใช้ดูหน้า report, **Then** ระบบแสดง report header: "Report: 11. Failed Login" และ "Date: {From Period} to {To Period}" ก่อนตาราง
 7. **Given** tab "11. Failed Login" แสดงผลลัพธ์, **When** ผู้ใช้ดูตาราง, **Then** ตารางมีคอลัมน์ครบตามลำดับ: Login Datetime, ACTION, ACTION_DESC, User Name, Group, Administrator, Firstname, Lastname, Client IP Address, Client Name
@@ -197,7 +197,7 @@ Backoffice
 
 - **FR-012**: ขีดจำกัด data availability แบ่งตามกลุ่ม report:
   - **Report 1–10** (Usage Time Per User ถึง Successfully Login): ไม่มีขีดจำกัด — ค้นหาย้อนหลังได้ไม่จำกัด
-  - **Report 11** (Failed Login) และ **Report 12** (Audit Log): ข้อมูลย้อนหลังสูงสุด **90 วัน** — ระบบต้องแจ้งเตือนและป้องกันการค้นหาหากช่วงวันที่เกิน 90 วัน
+  - **Report 11** (Failed Login) และ **Report 12** (Audit Log): ข้อมูลย้อนหลังสูงสุด **90 วัน** — ระบบ **clamp อัตโนมัติ**: เมื่อผู้ใช้เลือก Report 11 หรือ 12 ระบบจะปรับ From Period เป็น current date − 90 วันและ To Period เป็น current date โดยอัตโนมัติ และเมื่อ Submit ระบบจะ clamp fromPeriod เป็น max(fromPeriod, current date − 90) ก่อน query โดยไม่บล็อกและไม่แสดง error
 
 **View Log Report — Report Tab (ผลลัพธ์)**
 
@@ -218,16 +218,16 @@ Backoffice
 
   | ลำดับ | ชื่อคอลัมน์ | ค่าที่แสดง | หมายเหตุ |
   |-------|------------|-----------|----------|
-  | 1 | Login Datetime | วันที่และเวลาที่ login ล้มเหลว | — |
+  | 1 | LOGIN DATETIME | วันที่และเวลาที่ login ล้มเหลว | — |
   | 2 | ACTION | `LOGIN` | แสดงค่า **"LOGIN"** เสมอ — report นี้กรองเฉพาะ LOGIN ที่ล้มเหลว |
   | 3 | ACTION_DESC | ข้อความจาก catalog table | ดึงค่า NAME_EN ตาม CATALOG_ID (ดูรายการด้านล่าง) |
-  | 4 | User Name | ชื่อผู้ใช้ที่พยายาม login | — |
-  | 5 | Group | กลุ่มของผู้ใช้ | — |
-  | 6 | Administrator | `null` หรือ `Y` | null = ไม่ใช่ admin, `Y` = เป็น admin |
-  | 7 | Firstname | ชื่อจริงของผู้ใช้ | — |
-  | 8 | Lastname | นามสกุลของผู้ใช้ | — |
-  | 9 | Client IP Address | IP Address ของ client ที่ login | — |
-  | 10 | Client Name | ชื่อเครื่อง client | — |
+  | 4 | USER NAME | ชื่อผู้ใช้ที่พยายาม login | — |
+  | 5 | GROUP | กลุ่มของผู้ใช้ | — |
+  | 6 | ADMINISTRATOR | `null` หรือ `Y` | null = ไม่ใช่ admin, `Y` = เป็น admin |
+  | 7 | FIRSTNAME | ชื่อจริงของผู้ใช้ | — |
+  | 8 | LASTNAME | นามสกุลของผู้ใช้ | — |
+  | 9 | CLIENT IP ADDRESS | IP Address ของ client ที่ login | — |
+  | 10 | CLIENT NAME | ชื่อเครื่อง client | — |
 
 - **FR-017a**: คอลัมน์ **ACTION** ของ report "11. Failed Login" ต้องแสดงค่า **`LOGIN`** เสมอสำหรับทุกแถว — report นี้คือ LOGIN event ที่ไม่สำเร็จ ไม่ใช่ event ประเภทอื่น
 
@@ -246,7 +246,7 @@ Backoffice
   | 9010009 | Invalid Username or Password |
   | 9010010 | Password will expire in |
 
-- **FR-017c**: คอลัมน์ **Administrator** แสดงได้ 2 ค่าเท่านั้น: **`Y`** (ผู้ใช้นั้นเป็น Administrator) หรือ **ว่าง/null** (ไม่ใช่ Administrator) — ห้ามแสดงค่าอื่น
+- **FR-017c**: คอลัมน์ **ADMINISTRATOR** แสดงได้ 2 ค่าเท่านั้น: **`Y`** (ผู้ใช้นั้นเป็น Administrator) หรือ **ว่าง/null** (ไม่ใช่ Administrator) — ห้ามแสดงค่าอื่น
 
 **Report 12. Audit Log — Column Specification**
 
@@ -254,7 +254,7 @@ Backoffice
 
   | ลำดับ | ชื่อคอลัมน์ | คำอธิบาย |
   |-------|------------|----------|
-  | 1 | username | username ของผู้ใช้ที่ถูกกระทำ (เป้าหมายของ action) |
+  | 1 | USERNAME | username ของผู้ใช้ที่ถูกกระทำ (เป้าหมายของ action) |
   | 2 | ACTION | ประเภทของ action ที่กระทำ (เช่น UPDATE, CREATE, DELETE) |
   | 3 | ACTION_DATE | วันที่และเวลาที่ action เกิดขึ้น |
   | 4 | ACTION_DESC | คำอธิบายของ action |
@@ -264,8 +264,9 @@ Backoffice
   | 8 | PREVIOUS_DATA | ข้อมูลก่อนถูกเปลี่ยนแปลง |
   | 9 | MODIFY_BY | username ของผู้ที่กระทำ action (ผู้แก้ไข) |
 
-- **FR-017e**: คอลัมน์ **username** หมายถึง username ของผู้ใช้ที่เป็น **เป้าหมาย** ของการกระทำ — แตกต่างจาก MODIFY_BY ซึ่งคือผู้ที่ดำเนินการ
-- **FR-017f**: คอลัมน์ **UPDATED_DATA** และ **PREVIOUS_DATA** แสดงข้อมูลที่เปลี่ยนแปลง — อาจเป็นค่าว่างสำหรับ action ที่ไม่มีการแก้ไขข้อมูล (เช่น VIEW)
+- **FR-017e**: คอลัมน์ **USERNAME** หมายถึง username ของผู้ใช้ที่เป็น **เป้าหมาย** ของการกระทำ — แตกต่างจาก MODIFY_BY ซึ่งคือผู้ที่ดำเนินการ
+- **FR-017f**: คอลัมน์ **UPDATED_DATA** และ **PREVIOUS_DATA** แสดงข้อมูลที่เปลี่ยนแปลง — อาจเป็นค่าว่างสำหรับ action ที่ไม่มีการแก้ไขข้อมูล
+- **FR-017g**: Report "12. Audit Log" ต้อง **ไม่แสดง** รายการที่มีค่า ACTION เป็น `VIEW`, `LOGIN`, หรือ `LOGOUT` — รายการเหล่านี้ถูกกรองออกทั้งใน query result และ CSV export
 
 **Report Tab — Export Icon (ทุก report tab)**
 
@@ -299,6 +300,11 @@ Backoffice
 - **Filter Criteria**: เงื่อนไขการค้นหาใน View Log Report ประกอบด้วย: Report List, From Period, To Period, User Status
 
 ## Clarifications
+
+### Session 2026-06-04
+
+- Q: Report 12 (Audit Log) ควร exclude ACTION ประเภทใดบ้าง? → A: ไม่แสดงรายการที่ ACTION = `VIEW`, `LOGIN`, หรือ `LOGOUT` — กรองออกทั้งใน query และ export (FR-017g)
+- Q: พฤติกรรมของ Report 11–12 เมื่อช่วงวันที่เกิน 90 วัน ใน View Log Report ควรเป็นอย่างไร? → A: clamp อัตโนมัติ — เมื่อเลือก Report 11 หรือ 12 ให้ auto-fill From Period = current date − 90 วัน, To Period = current date และเมื่อ Submit ให้ clamp fromPeriod เป็น max(fromPeriod, current date − 90) โดยไม่บล็อกและไม่แสดง error (เหมือนพฤติกรรมของ Export All)
 
 ### Session 2026-05-29
 
