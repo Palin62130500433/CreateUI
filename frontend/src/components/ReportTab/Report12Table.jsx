@@ -1,15 +1,16 @@
 import React, { useState } from 'react';
 
 const COLUMNS = [
-  { key: 'username',     label: 'USERNAME'       },
-  { key: 'action',       label: 'ACTION'         },
-  { key: 'actionDate',   label: 'ACTION_DATE'    },
-  { key: 'actionDesc',   label: 'ACTION_DESC'    },
-  { key: 'result',       label: 'RESULT'         },
-  { key: 'ipAddress',    label: 'IP_ADDRESS'     },
-  { key: 'updatedData',  label: 'UPDATED_DATA'   },
-  { key: 'previousData', label: 'PREVIOUS_DATA'  },
-  { key: 'modifyBy',     label: 'MODIFY_BY'      },
+  { key: 'targetName',   label: 'TARGET'          },
+  { key: 'targetId',     label: 'TARGET ID'       },
+  { key: 'action',       label: 'ACTION'          },
+  { key: 'actionDate',   label: 'DATE TIME'       },
+  { key: 'resultStatus', label: 'STATUS'          },
+  { key: 'ipAddress',    label: 'IP ADDRESS'      },
+  { key: 'updatedData',  label: 'NEW DATA'        },
+  { key: 'previousData', label: 'OLD DATA'        },
+  { key: 'modifyId',     label: 'MODIFIED BY ID'  },
+  { key: 'modifyBy',     label: 'MODIFIED BY'     },
 ];
 
 function TruncatedCell({ value }) {
@@ -52,7 +53,7 @@ export default function Report12Table({ rows }) {
             <tr key={row.id ?? i} className={i % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
               {COLUMNS.map((c) => (
                 <td key={c.key} className="px-3 py-1.5 border border-gray-200 max-w-xs">
-                  {c.key === 'result' ? (
+                  {c.key === 'resultStatus' ? (
                     <span
                       className={
                         row[c.key] === 'SUCCESS'

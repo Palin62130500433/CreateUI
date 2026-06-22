@@ -84,9 +84,8 @@ function queryReport(reportId, { fromPeriod, toPeriod, userStatus, page, pageSiz
   if (id === 11) {
     filtered = filterRecords(report11Data, 'loginDatetime', effectiveFrom, toPeriod, userStatus);
   } else if (id === 12) {
-    const EXCLUDED_ACTIONS = new Set(['VIEW', 'LOGIN', 'LOGOUT']);
-    filtered = filterRecords(report12Data, 'actionDate', effectiveFrom, toPeriod, userStatus)
-      .filter((r) => !EXCLUDED_ACTIONS.has(r.action));
+    // userStatus filter does not apply to Audit Log — status here is resultStatus (SUCCESS/FAILED)
+    filtered = filterRecords(report12Data, 'actionDate', effectiveFrom, toPeriod, null);
   } else {
     // Reports 1-10: column specs pending — return empty placeholder
     filtered = [];
@@ -109,11 +108,8 @@ function getReport11ForExport(fromPeriod, toPeriod, userStatus) {
   return filterRecords(report11Data, 'loginDatetime', fromPeriod, toPeriod, userStatus);
 }
 
-const REPORT12_EXCLUDED_ACTIONS = new Set(['VIEW', 'LOGIN', 'LOGOUT']);
-
-function getReport12ForExport(fromPeriod, toPeriod, userStatus) {
-  return filterRecords(report12Data, 'actionDate', fromPeriod, toPeriod, userStatus)
-    .filter((r) => !REPORT12_EXCLUDED_ACTIONS.has(r.action));
+function getReport12ForExport(fromPeriod, toPeriod) {
+  return filterRecords(report12Data, 'actionDate', fromPeriod, toPeriod, null);
 }
 
 module.exports = { queryReport, getReport11ForExport, getReport12ForExport, validateDateRange, clampFromPeriod };

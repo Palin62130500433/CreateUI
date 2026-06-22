@@ -28,12 +28,12 @@ const REPORT11_DISPLAY = [
 ];
 
 const REPORT12_HEADERS = [
-  'username', 'action', 'actionDate', 'actionDesc', 'result',
-  'ipAddress', 'updatedData', 'previousData', 'modifyBy',
+  'targetName', 'targetId', 'action', 'actionDate', 'resultStatus',
+  'ipAddress', 'updatedData', 'previousData', 'modifyId', 'modifyBy',
 ];
 const REPORT12_DISPLAY = [
-  'USERNAME', 'ACTION', 'ACTION_DATE', 'ACTION_DESC', 'RESULT',
-  'IP_ADDRESS', 'UPDATED_DATA', 'PREVIOUS_DATA', 'MODIFY_BY',
+  'TARGET', 'TARGET ID', 'ACTION', 'DATE TIME', 'STATUS',
+  'IP ADDRESS', 'NEW DATA', 'OLD DATA', 'MODIFIED BY ID', 'MODIFIED BY',
 ];
 
 function buildCsvForReport(reportId, fromPeriod, toPeriod, userStatus, effectiveFrom) {
@@ -46,7 +46,7 @@ function buildCsvForReport(reportId, fromPeriod, toPeriod, userStatus, effective
     return rowsToCsv(REPORT11_DISPLAY, mapped);
   }
   if (reportId === 12) {
-    const rows = getReport12ForExport(ef, toPeriod, userStatus);
+    const rows = getReport12ForExport(ef, toPeriod);
     const mapped = rows.map((r) =>
       Object.fromEntries(REPORT12_DISPLAY.map((d, i) => [d, r[REPORT12_HEADERS[i]]]))
     );
